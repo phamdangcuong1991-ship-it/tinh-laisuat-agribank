@@ -167,6 +167,8 @@ return;
 }
 
 let principal=parseFloat(document.getElementById("principal").value);
+let customerName=document.getElementById("customerName").value;
+let customerAddress=document.getElementById("customerAddress").value;
 
 let workbook=new ExcelJS.Workbook();
 let worksheet=workbook.addWorksheet("BangTinhLaiSuat");
@@ -191,14 +193,22 @@ worksheet.getCell('A4').value="Số tiền vay: " + principal.toLocaleString("vi
 worksheet.getCell('A4').alignment={horizontal:'center'};
 worksheet.getCell('A4').font={italic:true};
 
-worksheet.columns=[
-{width:10},{width:18},{width:18},{width:18},{width:20}
-];
+worksheet.mergeCells('A5:E5');
+worksheet.getCell('A5').value="Khách hàng: " + customerName;
+worksheet.getCell('A5').alignment={horizontal:'center'};
+worksheet.getCell('A5').font={italic:true};
+
+worksheet.mergeCells('A6:E6');
+worksheet.getCell('A6').value="Địa chỉ: " + customerAddress;
+worksheet.getCell('A6').alignment={horizontal:'center'};
+worksheet.getCell('A6').font={italic:true};
+
+worksheet.columns=[{width:10},{width:18},{width:18},{width:18},{width:20}];
 
 worksheet.addRow([]);
 worksheet.addRow(["Tháng","Gốc (VNĐ)","Lãi (VNĐ)","Tổng trả (VNĐ)","Dư nợ còn lại (VNĐ)"]);
 
-let headerRow=worksheet.getRow(6);
+let headerRow=worksheet.getRow(8);
 headerRow.font={bold:true};
 headerRow.alignment={horizontal:'center'};
 headerRow.eachCell(cell=>{
