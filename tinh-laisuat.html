@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Tính Lãi Suất - Agribank Gia Định</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<style>
+body {
+    background: linear-gradient(to right, #b71c1c, #e53935);
+}
+.card {
+    border-radius: 15px;
+}
+.logo {
+    width: 110px;
+    background: white;
+    padding: 8px;
+    border-radius: 12px;
+}
+.header-title {
+    color: #b71c1c;
+    font-weight: bold;
+}
+.header-address {
+    font-size: 14px;
+    color: #444;
+}
+.btn-custom {
+    background-color: #b71c1c;
+    color: white;
+    font-weight: bold;
+}
+.btn-custom:hover {
+    background-color: #8e0000;
+}
+table {
+    font-size: 14px;
+}
+.footer-note {
+    font-size: 13px;
+    color: #666;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container mt-5 mb-5">
+<div class="card shadow-lg p-4">
+
+<!-- Header -->
+<div class="text-center mb-4">
+<img src="logo-agribank.png" class="logo mb-3">
+<h4 class="header-title">AGRIBANK - CHI NHÁNH GIA ĐỊNH</h4>
+<p class="header-address mb-1">
+Địa chỉ: Số 110 Phạm Ngũ Lão, Phường Hạnh Thông, Thành phố Hồ Chí Minh
+</p>
+<p class="text-muted fw-semibold">BẢNG TÍNH LÃI SUẤT TIỀN VAY</p>
+</div>
+
+<!-- Form nhập liệu -->
+<div class="row">
+<div class="col-md-4 mb-3">
+<label>Số tiền vay (VNĐ)</label>
+<input type="number" id="principal" class="form-control">
+</div>
+
+<div class="col-md-3 mb-3">
+<label>Lãi suất (%/năm)</label>
+<input type="number" id="rate" class="form-control">
+</div>
+
+<div class="col-md-3 mb-3">
+<label>Thời gian (tháng)</label>
+<input type="number" id="months" class="form-control">
+</div>
+
+<div class="col-md-2 mb-3">
+<label>Phương thức</label>
+<select id="method" class="form-select">
+<option value="annuity">Trả góp đều</option>
+<option value="reducing">Dư nợ giảm dần</option>
+</select>
+</div>
+</div>
+
+<button onclick="calculateLoan()" class="btn btn-custom w-100">TÍNH TOÁN</button>
+
+<hr>
+
+<!-- Tổng kết -->
+<div id="summary" class="mb-3"></div>
+
+<!-- Bảng chi tiết -->
+<div class="table-responsive">
+<table class="table table-bordered table-striped" id="scheduleTable" style="display:none;">
+<thead class="table-danger text-center">
+<tr>
+<th>Tháng</th>
+<th>Gốc (VNĐ)</th>
+<th>Lãi (VNĐ)</th>
+<th>Tổng trả (VNĐ)</th>
+<th>Dư nợ còn lại (VNĐ)</th>
+</tr>
+</thead>
+<tbody></tbody>
+</table>
+</div>
+
+<div class="text-center mt-3 footer-note">
+Kết quả chỉ mang tính chất tham khảo tại thời điểm tính toán.
+</div>
+
+</div>
+</div>
+
+<script>
+function calculateLoan() {
+let principal = parseFloat(document.getElementById("principal").value);
+let annualRate = parseFloat(document.getElementById("rate").value);
+let months = parseInt(document.getElementById("months").value);
+let method = document.getElementById("method").value;
+
+if (!principal || !annualRate || !months) {
+alert("Vui lòng nhập đầy đủ thông tin!");
+return;
+}
+
+let monthlyRate = annualRate / 100 / 12;
+let balance = principal;
+let totalInterest = 0;
+let tbody = document.querySelector("#scheduleTable tbody");
+tbody.innerHTML = "";
+
+if (method === "annuity") {
+
+let monthlyPayment = principal * monthlyRate / 
+(1 - Math.pow(1 + monthlyRate, -months));
+
+for (let i = 1; i <= months; i++) {
+let interest = balance * monthlyRate;
+let principalPaid = monthlyPayment - interest;
+balance -= principalPaid;
+totalInterest += interest;
+
+tbody.innerHTML += `
+<tr>
+<td class="text-center">${i}</td>
+<td>${principalPaid.toLocaleString()}</td>
+<td>${interest.toLocaleString()}</td>
+<td>${monthlyPayment.toLocaleString()}</td>
+<td>${balance > 0 ? balance.toLocaleString() : 0}</td>
+</tr>`;
+}
+
+} else {
+
+let principalPerMonth = principal / months;
+
+for (let i = 1; i <= months; i++) {
+let interest = balance * monthlyRate;
+let payment = principalPerMonth + interest;
+balance -= principalPerMonth;
+totalInterest += interest;
+
+tbody.innerHTML += `
+<tr>
+<td class="text-center">${i}</td>
+<td>${principalPerMonth.toLocaleString()}</td>
+<td>${interest.toLocaleString()}</td>
+<td>${payment.toLocaleString()}</td>
+<td>${balance > 0 ? balance.toLocaleString() : 0}</td>
+</tr>`;
+}
+}
+
+document.getElementById("scheduleTable").style.display = "table";
+
+let totalPayment = principal + totalInterest;
+
+document.getElementById("summary").innerHTML = `
+<div class="alert alert-success">
+<strong>Tổng tiền lãi:</strong> ${totalInterest.toLocaleString()} VNĐ<br>
+<strong>Tổng tiền phải trả:</strong> ${totalPayment.toLocaleString()} VNĐ
+</div>
+`;
+}
+</script>
+
+</body>
+</html>
